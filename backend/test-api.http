@@ -1,0 +1,106 @@
+### Teste da API Colmeia Backend com Autenticação JWT
+
+### 1. Health Check (não requer autenticação)
+GET http://localhost:3000/api/health
+
+### 2. Registro de usuário (não requer autenticação)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "senha123"
+}
+
+### 3. Login (não requer autenticação)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "senha123"
+}
+
+### 4. Obter perfil do usuário (requer autenticação)
+# Substitua {token} pelo token retornado no login
+GET http://localhost:3000/api/auth/profile
+Authorization: Bearer {token}
+
+### 5. Listar usuários (requer autenticação)
+GET http://localhost:3000/api/users
+Authorization: Bearer {token}
+
+### 6. Criar usuário (requer autenticação)
+POST http://localhost:3000/api/users
+Content-Type: application/json
+Authorization: Bearer {token}
+
+{
+  "username": "usuario2",
+  "password": "senha456"
+}
+
+### 7. Criar computador (requer autenticação)
+POST http://localhost:3000/api/computers
+Content-Type: application/json
+Authorization: Bearer {token}
+
+{
+  "name": "PC-01",
+  "ip": "192.168.1.100",
+  "editKey": "edit123",
+  "viewKey": "view123",
+  "vncAdminKey": "vnc123"
+}
+
+### 8. Listar computadores (requer autenticação)
+GET http://localhost:3000/api/computers
+Authorization: Bearer {token}
+
+### 9. Atualizar computador (requer autenticação)
+# Substitua {id} pelo ID real do computador
+PATCH http://localhost:3000/api/computers/{id}
+Content-Type: application/json
+Authorization: Bearer {token}
+
+{
+  "name": "PC-01-Atualizado",
+  "ip": "192.168.1.101"
+}
+
+### 10. Salvar chave Tailscale (requer autenticação)
+POST http://localhost:3000/api/tailscale
+Content-Type: application/json
+Authorization: Bearer {token}
+
+{
+  "tailscaleKey": "tskey-auth-abc123def456ghi789"
+}
+
+### 11. Obter chave Tailscale ativa (requer autenticação)
+GET http://localhost:3000/api/tailscale
+Authorization: Bearer {token}
+
+### Exemplo de uso com curl:
+
+### Login e obtenção do token
+```bash
+TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "senha123"}' | \
+  jq -r '.token')
+
+echo "Token: $TOKEN"
+```
+
+### Usar o token para acessar rotas protegidas
+```bash
+curl -X GET http://localhost:3000/api/computers \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Notas importantes:
+# - Todas as rotas exceto /api/health, /api/auth/login e /api/auth/register requerem autenticação
+# - O token JWT expira em 24 horas
+# - Use o header Authorization: Bearer {token} para todas as requisições autenticadas
+# - O token é retornado automaticamente após login ou registro bem-sucedido
